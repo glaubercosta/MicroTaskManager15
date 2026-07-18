@@ -1,0 +1,9 @@
+-- Placeholder de seed para dados de domínio FUTUROS (listas/tarefas).
+--
+-- O usuário dono (single-user) NÃO é criado aqui: criação de usuário GoTrue via
+-- SQL bruto é frágil (hooks internos, hashing, identities). O dono é criado via
+-- Admin API do Supabase local (ver plano GC-b, Task 5), com `npx supabase start`
+-- já rodando.
+--
+-- Quando o domínio de listas/tarefas existir, popule este arquivo com dados de
+-- exemplo (sem segredos) para desenvolvimento local.
