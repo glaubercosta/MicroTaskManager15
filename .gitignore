@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Logs / temporários
+*.log
+tmp/
+
+# Documentos internos de referência (não publicar — citam rede corporativa)
+linear-github-teste.md
+linear-gitlab-integracao.md

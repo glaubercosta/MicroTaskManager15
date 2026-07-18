@@ -1,0 +1,19 @@
+name: CI
+
+# Check trivial para exercitar a automação "ready for merge" do Linear (ver linear-github-teste.md §7).
+# Enquanto não houver stack/testes reais, este job apenas confirma que o pipeline roda.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Smoke check
+        run: echo ok
