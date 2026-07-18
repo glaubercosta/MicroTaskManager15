@@ -14,7 +14,8 @@ Um PR aberto **sem o ID do Linear** quebra o rastreamento. Nunca abra PR sem o I
 
 ### Branch
 - Gere o nome pelo atalho do Linear na issue (`Cmd/Ctrl + Shift + .`), que já inclui o ID.
-- Formato: `glauber/gc-<n>-<slug-curto>` — ex.: `glauber/gc-12-crud-tarefa`.
+- Formato: `glaubercosta/gc-<n>-<slug-curto>` — ex.: `glaubercosta/gc-12-crud-tarefa`.
+  (É o que o atalho do Linear gera — prefixo com o username completo.)
 
 ### Título do PR
 - Sempre inclua o ID: `GC-12 CRUD de tarefa`.
