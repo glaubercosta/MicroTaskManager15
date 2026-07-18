@@ -70,7 +70,7 @@ Expected: `npm run build` conclui sem erro (compila a página inicial padrão do
 
 ```bash
 git add -A
-git commit -m "GC-7 scaffold Next.js 16 (App Router, TS) no repo"
+git commit -m "GC-8 scaffold Next.js 16 (App Router, TS) no repo"
 ```
 
 ---
@@ -100,7 +100,7 @@ Expected: sem saída de erro (exit 0).
 
 ```bash
 git add package.json
-git commit -m "GC-7 adiciona scripts typecheck e test"
+git commit -m "GC-8 adiciona scripts typecheck e test"
 ```
 
 ---
@@ -151,7 +151,7 @@ Expected: Vitest inicia e reporta "No test files found" (exit 0 ou aviso; nenhum
 
 ```bash
 git add vitest.config.mts vitest.setup.ts package.json package-lock.json
-git commit -m "GC-7 configura Vitest (jsdom + testing-library)"
+git commit -m "GC-8 configura Vitest (jsdom + testing-library)"
 ```
 
 ---
@@ -206,7 +206,7 @@ Expected: PASS (2 testes).
 
 ```bash
 git add src/domain/task.ts src/domain/task.test.ts
-git commit -m "GC-7 dominio: validateTitle com teste (RF-3.2)"
+git commit -m "GC-8 dominio: validateTitle com teste (RF-3.2)"
 ```
 
 ---
@@ -261,7 +261,7 @@ Expected: as quatro etapas passam (exit 0). Se `npm run lint` reclamar de config
 
 ```bash
 git add .github/workflows/ci.yml
-git commit -m "GC-7 CI real: install/typecheck/lint/test barrando merge"
+git commit -m "GC-8 CI real: install/typecheck/lint/test barrando merge"
 ```
 
 ---
@@ -307,7 +307,7 @@ Ver `CLAUDE.md` (Linear ↔ GitHub, prefixo GC). Toda story: branch com o ID, PR
 
 ```bash
 git add AGENTS.md
-git commit -m "GC-7 adiciona AGENTS.md com comandos e convencoes"
+git commit -m "GC-8 adiciona AGENTS.md com comandos e convencoes"
 ```
 
 ---
@@ -322,8 +322,12 @@ git commit -m "GC-7 adiciona AGENTS.md com comandos e convencoes"
 
 ---
 
-## Nota sobre os commits
+## Nota sobre os commits e o PR
 
-Os commits deste plano usam `GC-7` (issue de planejamento/fundação). Se a story de
-scaffolding receber um ID próprio (ex.: `GC-8`) na criação das issues, ajuste o prefixo
-das mensagens para o ID real antes de abrir o PR.
+- A story de scaffolding é a issue **GC-8** no Linear; os commits deste plano usam o
+  prefixo `GC-8`.
+- A implementação da GC-a acontece em branch própria (`glaubercosta/gc-8-...`), com PR
+  `Fixes GC-8`. **Não** referenciar (`Ref`/`Part of`) outras issues no PR — a automação
+  reabre a issue referenciada (lição de GC-5).
+- Os docs (PRD + design + este plano) são mesclados à parte, pela issue de planejamento
+  **GC-7**.
