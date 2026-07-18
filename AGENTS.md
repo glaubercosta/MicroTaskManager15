@@ -27,3 +27,10 @@ testados à parte. Server Components async não são testáveis em unit (usar E2
 ## Convenções de fluxo
 Ver `CLAUDE.md` (Linear ↔ GitHub, prefixo GC). Toda story: branch com o ID, PR com
 `Fixes GC-<n>`, CI verde para mesclar.
+
+## Conta de desenvolvimento (Supabase local)
+- Supabase local roda em portas próprias (ver `supabase/config.toml`); suba com `npx supabase start`.
+- `.env.local` (não versionado) aponta para a API local; use `.env.example` como molde.
+- Usuário dono (single-user): `glaubercosta@versatecnologia.com.br`. A senha é um segredo
+  local de dev — crie/defina o dono via Admin API do Supabase local (ver plano GC-b, Task 5),
+  não há cadastro no app.
