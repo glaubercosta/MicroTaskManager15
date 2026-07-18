@@ -1,7 +1,7 @@
 name: CI
 
-# Check trivial para exercitar a automação "ready for merge" do Linear (ver linear-github-teste.md §7).
-# Enquanto não houver stack/testes reais, este job apenas confirma que o pipeline roda.
+# Gate real da integração: install -> typecheck -> lint -> test.
+# O ruleset protect-main exige o check "ci" verde para mesclar na main.
 on:
   pull_request:
     branches: [main]
@@ -15,5 +15,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Smoke check
-        run: echo ok
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm run test -- --run
