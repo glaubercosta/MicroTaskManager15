@@ -89,7 +89,7 @@ function TaskRow({ task }: { task: Task }) {
 
         <form action={setTaskPriority}>
           <input type="hidden" name="id" defaultValue={task.id} />
-          <select name="priority" defaultValue={task.priority} aria-label={`Prioridade de ${task.title}`}>
+          <select key={task.priority} name="priority" defaultValue={task.priority} aria-label={`Prioridade de ${task.title}`}>
             {PRIORITIES.map((p) => (
               <option key={p} value={p}>
                 {PRIORITY_LABELS[p]}
@@ -103,7 +103,7 @@ function TaskRow({ task }: { task: Task }) {
 
         <form action={setTaskStatus}>
           <input type="hidden" name="id" defaultValue={task.id} />
-          <select name="status" defaultValue={task.status} aria-label={`Status de ${task.title}`}>
+          <select key={task.status} name="status" defaultValue={task.status} aria-label={`Status de ${task.title}`}>
             {STATUSES.map((s) => (
               <option key={s} value={s}>
                 {STATUS_LABELS[s]}
