@@ -18,6 +18,8 @@ antigos (PRD §9).
 - `npm run typecheck` — `tsc --noEmit`
 - `npm run lint` — ESLint (config Next)
 - `npm run test` — Vitest (watch); use `npm run test -- --run` para rodada única
+- `npm run test:integration` — Vitest de integração (`*.integration.test.ts`, env node).
+  Requer Supabase local no ar + `SUPABASE_SERVICE_ROLE_KEY` no `.env.local`. **Fora do gate `ci`.**
 
 ## Arquitetura testável
 Lógica de domínio (validação, ordenação, status de prazo) vive em `src/domain/*`,
@@ -33,6 +35,12 @@ testados à parte. Server Components async não são testáveis em unit (usar E2
   versionadas. O `playwright.config.ts` carrega o `.env.local` via `dotenv`.
 - **NÃO entra no gate `ci`** do GitHub (que roda typecheck+lint+test): o E2E depende de
   Supabase/servidor e roda localmente.
+
+## Testes de integração (Supabase)
+- `npm run test:integration` prova o isolamento por RLS entre usuários (cria 2 usuários via
+  Admin API, insere dados e confirma que um não lê/edita dados do outro).
+- Pré-requisitos: `npx supabase start`, migration `tasks` aplicada (`npx supabase migration up`),
+  `SUPABASE_SERVICE_ROLE_KEY` no `.env.local` (valor de `npx supabase status`). NÃO entra no `ci`.
 
 ## Convenções de fluxo
 Ver `CLAUDE.md` (Linear ↔ GitHub, prefixo GC). Toda story: branch com o ID, PR com
