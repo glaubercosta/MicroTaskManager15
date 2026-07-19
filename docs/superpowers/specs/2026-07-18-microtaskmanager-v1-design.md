@@ -72,9 +72,18 @@ anteriores.
 - **Escopo:** tabela `tasks` + RLS (`auth.uid() = user_id`, `using` + `with check`);
   server actions para criar (título obrigatório, prioridade default `medium`, prazo
   opcional, status `new`), editar título (rejeita vazio), mudar prioridade/prazo/status
-  e apagar (RF-3). Lógica de domínio pura (validação) isolada. Render mínimo da lista.
-- **DoD:** CRUD funcional ponta a ponta; teste de integração comprova que **RLS bloqueia
-  dados de outro usuário**; unit tests de validação (título vazio, defaults).
+  e apagar (RF-3). Lógica de domínio pura (validação + **ordenação e agrupamento**)
+  isolada. Render mínimo da lista, já **ordenada e agrupada**.
+  - **Ordenação/agrupamento (movidos da GC-e em 2026-07-19):** funções puras `sortTasks`
+    (prioridade alta→baixa; empate por prazo mais próximo; sem prazo por último — RF-4.1) e
+    `partitionByStatus` (abertas primeiro; concluídas/canceladas numa seção ao final —
+    RF-4.3). A ordenação por prazo usa só comparação de datas; a **classificação** de
+    vencimento (hoje/atrasada/futura, RF-5) e a UI de badges/toggle/contagem permanecem
+    na GC-e.
+- **DoD:** CRUD funcional ponta a ponta; teste de integração (Vitest, fora do gate `ci`)
+  comprova que **RLS bloqueia dados de outro usuário**; unit tests de validação (título
+  vazio, defaults) e de ordenação/agrupamento; E2E básico do fluxo de CRUD (Playwright,
+  fora do `ci`).
 
 ### GC-d — Listas
 - **Escopo:** tabela `lists` + RLS; criar lista (nome não vazio, RF-2.1) e selecionar;
@@ -85,13 +94,15 @@ anteriores.
   estado vazio "sem listas" convida a criar a primeira (RF-4.6).
 
 ### GC-e — Visualização e organização
-- **Escopo:** lógica de domínio pura — ordenação por prioridade (alta→baixa) e, no
-  empate, por prazo mais próximo (sem prazo por último, RF-4.1); classificação de
-  vencimento (hoje/atrasada/futura, RF-5); agrupar concluídas/canceladas numa seção ao
-  final (RF-4.3); toggle "ocultar concluídas" (RF-4.4); contagem de abertas (RF-4.5);
-  estados vazios (RF-4.6). Componentes: badges de prioridade/vencimento, item concluído
-  (esmaecido/riscado), toggle.
-- **DoD:** funções puras testadas (ordenação, vencimento, filtro, agrupamento);
+> **Nota (2026-07-19):** ordenação (RF-4.1) e agrupamento aberto/concluído (RF-4.3) foram
+> **antecipados para a GC-c** como funções puras (`sortTasks`, `partitionByStatus`). A GC-e
+> passa a consumir essas funções e foca no resto: vencimento, toggle, contagem, vazios e UI.
+
+- **Escopo:** lógica de domínio pura — classificação de vencimento (hoje/atrasada/futura,
+  RF-5); toggle "ocultar concluídas" (RF-4.4); contagem de abertas (RF-4.5); estados vazios
+  (RF-4.6). Componentes: badges de prioridade/vencimento, item concluído
+  (esmaecido/riscado), toggle. Reusa `sortTasks`/`partitionByStatus` da GC-c.
+- **DoD:** funções puras testadas (vencimento, filtro "ocultar concluídas", contagem);
   componentes testados; prioridade com `aria-label` textual (não depende de cor).
 
 ### GC-f — Tema + identidade visual
