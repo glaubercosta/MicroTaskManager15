@@ -62,7 +62,9 @@ export interface Task extends SortableTask {
   created_at: string
 }
 
-const PRIORITY_RANK: Record<Priority, number> = { high: 3, medium: 2, low: 1 }
+const PRIORITY_RANK: Record<Priority, number> = Object.fromEntries(
+  PRIORITIES.map((p, i) => [p, i]),
+) as Record<Priority, number>
 const OPEN_STATUSES: readonly Status[] = ['new', 'working']
 
 /** RF-4.1: prioridade alta→baixa; empate por prazo mais próximo; sem prazo por último. Cópia (não muta). */

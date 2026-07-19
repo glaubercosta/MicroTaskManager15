@@ -89,6 +89,11 @@ describe('sortTasks (RF-4.1)', () => {
     sortTasks(input)
     expect(input).toEqual(copy)
   })
+
+  it('prioridade domina o desempate por prazo', () => {
+    const out = sortTasks([t('low', '2026-08-01'), t('high', '2026-08-31')])
+    expect(out.map((x) => x.priority)).toEqual(['high', 'low'])
+  })
 })
 
 describe('partitionByStatus (RF-4.3)', () => {
@@ -102,5 +107,17 @@ describe('partitionByStatus (RF-4.3)', () => {
     const { open, closed } = partitionByStatus(list)
     expect(open.map((x) => x.status)).toEqual(['new', 'working'])
     expect(closed.map((x) => x.status)).toEqual(['done', 'canceled'])
+  })
+
+  it('preserva a ordem relativa dentro de cada seção com múltiplas tarefas do mesmo status', () => {
+    const list = [
+      t('high', '2026-08-01', 'new'),
+      t('high', '2026-08-02', 'done'),
+      t('high', '2026-08-03', 'working'),
+      t('high', '2026-08-04', 'canceled'),
+    ]
+    const { open, closed } = partitionByStatus(list)
+    expect(open.map((x) => x.due_date)).toEqual(['2026-08-01', '2026-08-03'])
+    expect(closed.map((x) => x.due_date)).toEqual(['2026-08-02', '2026-08-04'])
   })
 })
