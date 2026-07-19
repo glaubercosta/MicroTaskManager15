@@ -12,6 +12,8 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
+  // Suite E2E compartilha a conta única do dono; roda serial para evitar que o logout de um arquivo derrube a sessão de outro.
+  workers: 1,
   reporter: 'list',
   use: {
     baseURL: BASE_URL,
