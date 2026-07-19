@@ -47,3 +47,45 @@ export function normalizeDueDate(raw: string): string | null {
   }
   return trimmed
 }
+
+export interface SortableTask {
+  priority: Priority
+  due_date: string | null
+}
+
+/** Linha de tarefa como vem do banco (para o render). */
+export interface Task extends SortableTask {
+  id: string
+  title: string
+  status: Status
+  list_id: string | null
+  created_at: string
+}
+
+const PRIORITY_RANK: Record<Priority, number> = { high: 3, medium: 2, low: 1 }
+const OPEN_STATUSES: readonly Status[] = ['new', 'working']
+
+/** RF-4.1: prioridade alta→baixa; empate por prazo mais próximo; sem prazo por último. Cópia (não muta). */
+export function sortTasks<T extends SortableTask>(tasks: readonly T[]): T[] {
+  return [...tasks].sort((a, b) => {
+    const byPriority = PRIORITY_RANK[b.priority] - PRIORITY_RANK[a.priority]
+    if (byPriority !== 0) return byPriority
+    if (a.due_date === b.due_date) return 0
+    if (a.due_date === null) return 1
+    if (b.due_date === null) return -1
+    return a.due_date < b.due_date ? -1 : 1
+  })
+}
+
+/** RF-4.3: abertas (new/working) primeiro; encerradas (done/canceled) numa seção ao final. */
+export function partitionByStatus<T extends { status: Status }>(
+  tasks: readonly T[],
+): { open: T[]; closed: T[] } {
+  const open: T[] = []
+  const closed: T[] = []
+  for (const task of tasks) {
+    if (OPEN_STATUSES.includes(task.status)) open.push(task)
+    else closed.push(task)
+  }
+  return { open, closed }
+}

@@ -4,10 +4,14 @@ import {
   isPriority,
   isStatus,
   normalizeDueDate,
+  sortTasks,
+  partitionByStatus,
   PRIORITIES,
   STATUSES,
   PRIORITY_LABELS,
   STATUS_LABELS,
+  type Priority,
+  type Status,
 } from './task'
 
 describe('validateTitle', () => {
@@ -54,5 +58,49 @@ describe('normalizeDueDate', () => {
 
   it('rejeita formato inválido', () => {
     expect(() => normalizeDueDate('19/07/2026')).toThrow('inválido')
+  })
+})
+
+const t = (priority: Priority, due_date: string | null, status: Status = 'new') => ({
+  priority,
+  due_date,
+  status,
+})
+
+describe('sortTasks (RF-4.1)', () => {
+  it('ordena por prioridade alta→baixa', () => {
+    const out = sortTasks([t('low', null), t('high', null), t('medium', null)])
+    expect(out.map((x) => x.priority)).toEqual(['high', 'medium', 'low'])
+  })
+
+  it('no empate de prioridade, prazo mais próximo primeiro', () => {
+    const out = sortTasks([t('high', '2026-08-10'), t('high', '2026-08-01')])
+    expect(out.map((x) => x.due_date)).toEqual(['2026-08-01', '2026-08-10'])
+  })
+
+  it('sem prazo vai depois das com prazo, na mesma prioridade', () => {
+    const out = sortTasks([t('high', null), t('high', '2026-08-01')])
+    expect(out.map((x) => x.due_date)).toEqual(['2026-08-01', null])
+  })
+
+  it('não muta o array de entrada', () => {
+    const input = [t('low', null), t('high', null)]
+    const copy = [...input]
+    sortTasks(input)
+    expect(input).toEqual(copy)
+  })
+})
+
+describe('partitionByStatus (RF-4.3)', () => {
+  it('separa abertas (new/working) das encerradas (done/canceled) preservando a ordem', () => {
+    const list = [
+      t('high', null, 'new'),
+      t('high', null, 'done'),
+      t('high', null, 'working'),
+      t('high', null, 'canceled'),
+    ]
+    const { open, closed } = partitionByStatus(list)
+    expect(open.map((x) => x.status)).toEqual(['new', 'working'])
+    expect(closed.map((x) => x.status)).toEqual(['done', 'canceled'])
   })
 })
