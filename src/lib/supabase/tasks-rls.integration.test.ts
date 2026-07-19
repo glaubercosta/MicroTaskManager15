@@ -54,10 +54,12 @@ describe('RLS de tasks: isolamento entre usuários (RNF-1)', () => {
   })
 
   it('B não enxerga tarefas de A no SELECT', async () => {
-    const { data: seenByB } = await userB.client.from('tasks').select('id')
+    const { data: seenByB, error: errB } = await userB.client.from('tasks').select('id')
+    expect(errB).toBeNull()
     expect(seenByB ?? []).toHaveLength(0)
 
-    const { data: seenByA } = await userA.client.from('tasks').select('id')
+    const { data: seenByA, error: errA } = await userA.client.from('tasks').select('id')
+    expect(errA).toBeNull()
     expect((seenByA ?? []).map((r) => r.id)).toContain(taskAId)
   })
 
