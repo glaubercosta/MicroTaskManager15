@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
+    "test:integration": "vitest --run --config vitest.integration.config.mts",
     "e2e": "playwright test"
   },
   "dependencies": {
