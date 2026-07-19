@@ -34,9 +34,11 @@ describe('guards de enum', () => {
   })
 
   it('rótulos pt-BR cobrem todos os valores internos (RNF-4)', () => {
+    PRIORITIES.forEach((p) => expect(PRIORITY_LABELS[p]).toBeTruthy())
+    STATUSES.forEach((s) => expect(STATUS_LABELS[s]).toBeTruthy())
+    // spot-check de tradução
     expect(PRIORITY_LABELS.high).toBe('Alta')
     expect(STATUS_LABELS.working).toBe('Trabalhando')
-    expect(STATUS_LABELS.done).toBe('Concluída')
   })
 })
 

@@ -34,7 +34,11 @@ export function isStatus(value: string): value is Status {
   return (STATUSES as readonly string[]).includes(value)
 }
 
-/** Normaliza um prazo vindo de formulário. Vazio → null (limpar). Valida AAAA-MM-DD (RF-3.4). */
+/**
+ * Normaliza um prazo vindo de formulário. Vazio → null (limpar). Valida AAAA-MM-DD (RF-3.4).
+ * Só valida o formato aqui; a validade de calendário (ex.: rejeitar 2026-13-45) fica a cargo
+ * da coluna `date` do Postgres — não é uma omissão.
+ */
 export function normalizeDueDate(raw: string): string | null {
   const trimmed = raw.trim()
   if (trimmed.length === 0) return null
