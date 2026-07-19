@@ -24,6 +24,16 @@ Lógica de domínio (validação, ordenação, status de prazo) vive em `src/dom
 pura e isolada de UI/dados, coberta por testes unitários. Acesso a dados e UI são
 testados à parte. Server Components async não são testáveis em unit (usar E2E no futuro).
 
+## Testes E2E (Playwright)
+- `npm run e2e` — roda os testes em `e2e/` (Playwright + Chromium). Sobe seu próprio
+  dev server numa porta dedicada (`E2E_PORT`, default 3100).
+- **Pré-requisitos locais:** Supabase local no ar (`npx supabase start`) e o usuário
+  dono já criado (ver "Conta de desenvolvimento"). Sem isso, os testes de login pulam/falham.
+- **Credenciais:** vêm de `.env.local` (`E2E_OWNER_EMAIL`, `E2E_OWNER_PASSWORD`) — não
+  versionadas. O `playwright.config.ts` carrega o `.env.local` via `dotenv`.
+- **NÃO entra no gate `ci`** do GitHub (que roda typecheck+lint+test): o E2E depende de
+  Supabase/servidor e roda localmente.
+
 ## Convenções de fluxo
 Ver `CLAUDE.md` (Linear ↔ GitHub, prefixo GC). Toda story: branch com o ID, PR com
 `Fixes GC-<n>`, CI verde para mesclar.
