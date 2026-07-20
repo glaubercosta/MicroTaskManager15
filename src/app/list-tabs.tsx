@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { List } from '@/domain/list'
 import { NewList } from './new-list'
 
@@ -11,18 +12,17 @@ export function ListTabs({
 }) {
   return (
     <nav aria-label="Listas" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '16px 0' }}>
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- plain <a>: server re-render via ?list=, sem router client (ver contexto da task) */}
-      <a href="/" aria-current={activeListId === null ? 'page' : undefined}>
+      <Link href="/" aria-current={activeListId === null ? 'page' : undefined}>
         Todas
-      </a>
+      </Link>
       {lists.map((list) => (
-        <a
+        <Link
           key={list.id}
           href={`/?list=${list.id}`}
           aria-current={activeListId === list.id ? 'page' : undefined}
         >
           {list.name}
-        </a>
+        </Link>
       ))}
       <NewList />
     </nav>
