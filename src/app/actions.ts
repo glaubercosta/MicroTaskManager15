@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { validateTitle, isPriority, isStatus, normalizeDueDate } from '@/domain/task'
+import { validateListName, normalizeListId } from '@/domain/list'
 
 async function requireUserClient() {
   const supabase = await createClient()
@@ -33,10 +34,12 @@ export async function createTask(_prev: unknown, formData: FormData) {
     return { error: (e as Error).message }
   }
 
+  const list_id = normalizeListId(String(formData.get('list_id') ?? ''))
+
   const { supabase, user } = await requireUserClient()
   const { error } = await supabase
     .from('tasks')
-    .insert({ user_id: user.id, title, priority, due_date, status: 'new' })
+    .insert({ user_id: user.id, title, priority, due_date, status: 'new', list_id })
   if (error) return { error: 'Não foi possível criar a tarefa.' }
 
   revalidatePath('/')
@@ -97,4 +100,21 @@ export async function deleteTask(formData: FormData) {
   const { supabase } = await requireUserClient()
   await supabase.from('tasks').delete().eq('id', id)
   revalidatePath('/')
+}
+
+/** RF-2.1: criar lista (nome não vazio). Retorna { error } para useActionState. */
+export async function createList(_prev: unknown, formData: FormData) {
+  let name: string
+  try {
+    name = validateListName(String(formData.get('name') ?? ''))
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
+
+  const { supabase, user } = await requireUserClient()
+  const { error } = await supabase.from('lists').insert({ user_id: user.id, name })
+  if (error) return { error: 'Não foi possível criar a lista.' }
+
+  revalidatePath('/')
+  return { error: null }
 }
