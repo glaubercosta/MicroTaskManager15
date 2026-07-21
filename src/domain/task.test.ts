@@ -9,6 +9,8 @@ import {
   classifyDueDate,
   DUE_CLASS_LABELS,
   buildTaskView,
+  HIDE_DONE_PARAM,
+  parseHideDone,
   PRIORITIES,
   STATUSES,
   PRIORITY_LABELS,
@@ -191,5 +193,25 @@ describe('buildTaskView (RF-4.3/4.4/4.5)', () => {
     const copy = [...input]
     buildTaskView(input, { hideCompleted: true })
     expect(input).toEqual(copy)
+  })
+})
+
+describe('parseHideDone (RF-4.4)', () => {
+  it('o nome do param é estável', () => {
+    expect(HIDE_DONE_PARAM).toBe('done')
+  })
+
+  it('"hidden" → true', () => {
+    expect(parseHideDone('hidden')).toBe(true)
+  })
+
+  it('ausente/undefined ou qualquer outro valor → false (mostrar concluídas por padrão)', () => {
+    expect(parseHideDone(undefined)).toBe(false)
+    expect(parseHideDone('')).toBe(false)
+    expect(parseHideDone('shown')).toBe(false)
+  })
+
+  it('aceita array de query params usando o primeiro valor', () => {
+    expect(parseHideDone(['hidden', 'shown'])).toBe(true)
   })
 })

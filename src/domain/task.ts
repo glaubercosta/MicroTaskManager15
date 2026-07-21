@@ -136,3 +136,12 @@ export function buildTaskView<T extends SortableTask & { status: Status }>(
     openCount: open.length,
   }
 }
+
+/** Query param do toggle "ocultar concluídas" (RF-4.4). */
+export const HIDE_DONE_PARAM = 'done'
+
+/** Interpreta o valor do query param `?done=`. Só `"hidden"` oculta; padrão mostra. */
+export function parseHideDone(value: string | string[] | undefined): boolean {
+  const first = Array.isArray(value) ? value[0] : value
+  return first === 'hidden'
+}
