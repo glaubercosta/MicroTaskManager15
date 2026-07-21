@@ -146,7 +146,7 @@ describe('classifyDueDate (RF-5.1)', () => {
     expect(classifyDueDate('2026-07-22', TODAY)).toBe('future')
   })
 
-  it('compara por data de calendário, não por string ingênua entre meses', () => {
+  it('classifica corretamente na virada de mês (RF-5.1)', () => {
     expect(classifyDueDate('2026-08-01', '2026-07-31')).toBe('future')
     expect(classifyDueDate('2026-07-31', '2026-08-01')).toBe('overdue')
   })
