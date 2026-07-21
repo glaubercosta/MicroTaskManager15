@@ -20,7 +20,7 @@ export function HideCompletedToggle({
   // quando já está oculto, o link volta a mostrar (sem o param `done`).
 
   return (
-    <Link href={{ pathname: '/', query }} aria-pressed={hideCompleted}>
+    <Link href={{ pathname: '/', query }}>
       {hideCompleted ? 'Mostrar concluídas' : 'Ocultar concluídas'}
     </Link>
   )
