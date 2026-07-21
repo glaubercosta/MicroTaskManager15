@@ -6,6 +6,8 @@ import {
   normalizeDueDate,
   sortTasks,
   partitionByStatus,
+  classifyDueDate,
+  DUE_CLASS_LABELS,
   PRIORITIES,
   STATUSES,
   PRIORITY_LABELS,
@@ -119,5 +121,36 @@ describe('partitionByStatus (RF-4.3)', () => {
     const { open, closed } = partitionByStatus(list)
     expect(open.map((x) => x.due_date)).toEqual(['2026-08-01', '2026-08-03'])
     expect(closed.map((x) => x.due_date)).toEqual(['2026-08-02', '2026-08-04'])
+  })
+})
+
+describe('classifyDueDate (RF-5.1)', () => {
+  const TODAY = '2026-07-21'
+
+  it('sem prazo → null (sem indicação)', () => {
+    expect(classifyDueDate(null, TODAY)).toBeNull()
+  })
+
+  it('prazo anterior a hoje → overdue', () => {
+    expect(classifyDueDate('2026-07-20', TODAY)).toBe('overdue')
+  })
+
+  it('prazo igual a hoje → today', () => {
+    expect(classifyDueDate('2026-07-21', TODAY)).toBe('today')
+  })
+
+  it('prazo posterior a hoje → future', () => {
+    expect(classifyDueDate('2026-07-22', TODAY)).toBe('future')
+  })
+
+  it('compara por data de calendário, não por string ingênua entre meses', () => {
+    expect(classifyDueDate('2026-08-01', '2026-07-31')).toBe('future')
+    expect(classifyDueDate('2026-07-31', '2026-08-01')).toBe('overdue')
+  })
+
+  it('rótulos pt-BR cobrem todas as classes', () => {
+    expect(DUE_CLASS_LABELS.overdue).toBe('Atrasada')
+    expect(DUE_CLASS_LABELS.today).toBe('Hoje')
+    expect(DUE_CLASS_LABELS.future).toBe('Futura')
   })
 })

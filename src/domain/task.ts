@@ -48,6 +48,27 @@ export function normalizeDueDate(raw: string): string | null {
   return trimmed
 }
 
+export type DueClass = 'overdue' | 'today' | 'future'
+
+/** Rótulos pt-BR das classes de vencimento (RNF-4). */
+export const DUE_CLASS_LABELS: Record<DueClass, string> = {
+  overdue: 'Atrasada',
+  today: 'Hoje',
+  future: 'Futura',
+}
+
+/**
+ * RF-5.1: classifica um prazo relativo a `today` (ambos AAAA-MM-DD).
+ * `today` é injetado (função pura, sem relógio interno). Sem prazo → null.
+ * A comparação lexicográfica de datas ISO coincide com a ordem cronológica.
+ */
+export function classifyDueDate(dueDate: string | null, today: string): DueClass | null {
+  if (dueDate === null) return null
+  if (dueDate < today) return 'overdue'
+  if (dueDate === today) return 'today'
+  return 'future'
+}
+
 export interface SortableTask {
   priority: Priority
   due_date: string | null
