@@ -9,7 +9,14 @@ import {
   STATUS_LABELS,
   type Task,
 } from '@/domain/task'
+import {
+  filterTasksByList,
+  resolveActiveListId,
+  ALL_LISTS,
+  type List,
+} from '@/domain/list'
 import { TaskQuickAdd } from './task-quick-add'
+import { ListTabs } from './list-tabs'
 import {
   updateTaskTitle,
   setTaskPriority,
@@ -18,16 +25,31 @@ import {
   deleteTask,
 } from './actions'
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ list?: string | string[] }>
+}) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const { data: listsData } = await supabase
+    .from('lists')
+    .select('id,name,created_at')
+    .order('created_at', { ascending: true })
+  const lists = (listsData ?? []) as List[]
+
+  const { list: rawParam } = await searchParams
+  const listParam = Array.isArray(rawParam) ? rawParam[0] : rawParam
+  const activeListId = resolveActiveListId(lists, listParam)
+
   const { data } = await supabase
     .from('tasks')
     .select('id,title,priority,due_date,status,list_id,created_at')
-  const tasks = (data ?? []) as Task[]
+  const allTasks = (data ?? []) as Task[]
+  const tasks = filterTasksByList(allTasks, activeListId)
   const { open, closed } = partitionByStatus(sortTasks(tasks))
 
   return (
@@ -40,7 +62,13 @@ export default async function Home() {
       </header>
       <p>Sessão de {user?.email ?? 'desconhecido'}.</p>
 
-      <TaskQuickAdd />
+      <ListTabs lists={lists} activeListId={activeListId} />
+
+      {lists.length === 0 ? (
+        <p role="note">Você ainda não tem listas. Crie a primeira acima para organizar suas tarefas.</p>
+      ) : null}
+
+      <TaskQuickAdd key={activeListId ?? ALL_LISTS} activeListId={activeListId} />
 
       <section aria-label="Tarefas abertas">
         <h2>Abertas ({open.length})</h2>
