@@ -112,3 +112,27 @@ export function partitionByStatus<T extends { status: Status }>(
   }
   return { open, closed }
 }
+
+export interface TaskView<T> {
+  open: T[]
+  /** Concluídas/canceladas; vazio quando `hideCompleted` (RF-4.4). */
+  closed: T[]
+  /** Contagem de abertas para o cabeçalho (RF-4.5). */
+  openCount: number
+}
+
+/**
+ * Monta a visão da lista: ordena (RF-4.1), agrupa por status (RF-4.3), conta
+ * abertas (RF-4.5) e aplica o toggle "ocultar concluídas" (RF-4.4). Função pura.
+ */
+export function buildTaskView<T extends SortableTask & { status: Status }>(
+  tasks: readonly T[],
+  opts: { hideCompleted: boolean },
+): TaskView<T> {
+  const { open, closed } = partitionByStatus(sortTasks(tasks))
+  return {
+    open,
+    closed: opts.hideCompleted ? [] : closed,
+    openCount: open.length,
+  }
+}

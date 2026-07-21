@@ -8,6 +8,7 @@ import {
   partitionByStatus,
   classifyDueDate,
   DUE_CLASS_LABELS,
+  buildTaskView,
   PRIORITIES,
   STATUSES,
   PRIORITY_LABELS,
@@ -152,5 +153,43 @@ describe('classifyDueDate (RF-5.1)', () => {
     expect(DUE_CLASS_LABELS.overdue).toBe('Atrasada')
     expect(DUE_CLASS_LABELS.today).toBe('Hoje')
     expect(DUE_CLASS_LABELS.future).toBe('Futura')
+  })
+})
+
+describe('buildTaskView (RF-4.3/4.4/4.5)', () => {
+  const sample = () => [
+    t('low', null, 'new'),
+    t('high', '2026-08-01', 'done'),
+    t('medium', null, 'working'),
+  ]
+
+  it('ordena e particiona: abertas ordenadas por prioridade, concluídas ao final', () => {
+    const view = buildTaskView(sample(), { hideCompleted: false })
+    expect(view.open.map((x) => x.priority)).toEqual(['medium', 'low'])
+    expect(view.closed.map((x) => x.status)).toEqual(['done'])
+  })
+
+  it('openCount conta só as abertas (RF-4.5)', () => {
+    const view = buildTaskView(sample(), { hideCompleted: false })
+    expect(view.openCount).toBe(2)
+  })
+
+  it('hideCompleted=true zera a seção de concluídas mas mantém a contagem de abertas (RF-4.4)', () => {
+    const view = buildTaskView(sample(), { hideCompleted: true })
+    expect(view.closed).toEqual([])
+    expect(view.open).toHaveLength(2)
+    expect(view.openCount).toBe(2)
+  })
+
+  it('lista vazia → tudo vazio e contagem zero', () => {
+    const view = buildTaskView([], { hideCompleted: false })
+    expect(view).toEqual({ open: [], closed: [], openCount: 0 })
+  })
+
+  it('não muta o array de entrada', () => {
+    const input = sample()
+    const copy = [...input]
+    buildTaskView(input, { hideCompleted: true })
+    expect(input).toEqual(copy)
   })
 })
