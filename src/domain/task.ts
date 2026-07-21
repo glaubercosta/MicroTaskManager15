@@ -69,6 +69,14 @@ export function classifyDueDate(dueDate: string | null, today: string): DueClass
   return 'future'
 }
 
+/**
+ * Data local de hoje (AAAA-MM-DD) no fuso do app (RF-5). Injeta `now` p/ teste.
+ * Usa `Intl` (en-CA já produz AAAA-MM-DD) para evitar o off-by-one do UTC.
+ */
+export function todayISO(timeZone = 'America/Sao_Paulo', now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(now)
+}
+
 export interface SortableTask {
   priority: Priority
   due_date: string | null
@@ -119,6 +127,8 @@ export interface TaskView<T> {
   closed: T[]
   /** Contagem de abertas para o cabeçalho (RF-4.5). */
   openCount: number
+  /** Total de concluídas/canceladas, independente de `hideCompleted`. */
+  closedCount: number
 }
 
 /**
@@ -134,6 +144,7 @@ export function buildTaskView<T extends SortableTask & { status: Status }>(
     open,
     closed: opts.hideCompleted ? [] : closed,
     openCount: open.length,
+    closedCount: closed.length,
   }
 }
 

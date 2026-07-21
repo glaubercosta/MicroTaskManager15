@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { signOut } from './login/actions'
 import {
   buildTaskView,
+  todayISO,
   parseHideDone,
   HIDE_DONE_PARAM,
   PRIORITIES,
@@ -55,9 +56,9 @@ export default async function Home({
     .select('id,title,priority,due_date,status,list_id,created_at')
   const allTasks = (data ?? []) as Task[]
   const tasks = filterTasksByList(allTasks, activeListId)
-  const { open, closed, openCount } = buildTaskView(tasks, { hideCompleted })
+  const { open, closed, openCount, closedCount } = buildTaskView(tasks, { hideCompleted })
 
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayISO()
 
   return (
     <main style={{ maxWidth: 600, margin: '6vh auto', padding: 24 }}>
@@ -77,11 +78,13 @@ export default async function Home({
 
       <TaskQuickAdd key={activeListId ?? ALL_LISTS} activeListId={activeListId} />
 
-      <HideCompletedToggle hideCompleted={hideCompleted} activeListId={activeListId} />
+      {closedCount > 0 ? (
+        <HideCompletedToggle hideCompleted={hideCompleted} activeListId={activeListId} />
+      ) : null}
 
       <section aria-label="Tarefas abertas">
         <h2>Abertas ({openCount})</h2>
-        {openCount === 0 && closed.length === 0 ? (
+        {openCount === 0 && closedCount === 0 ? (
           <p role="note">Nenhuma tarefa aqui ainda. Adicione a primeira acima.</p>
         ) : (
           <ul>
