@@ -19,6 +19,8 @@ export function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
   // O script inline de fallback pode ter aplicado localStorage antes da hidratação.
   useEffect(() => {
     const applied = document.documentElement.dataset.theme
+    // Sync deliberado pós-hidratação: initializer leria o DOM no render e causaria mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (applied !== undefined) setTheme(parseTheme(applied))
   }, [])
 
