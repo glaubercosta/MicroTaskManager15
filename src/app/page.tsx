@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from './login/actions'
 import {
-  sortTasks,
-  partitionByStatus,
+  buildTaskView,
+  todayISO,
+  parseHideDone,
+  HIDE_DONE_PARAM,
   PRIORITIES,
   PRIORITY_LABELS,
   STATUSES,
@@ -17,6 +19,9 @@ import {
 } from '@/domain/list'
 import { TaskQuickAdd } from './task-quick-add'
 import { ListTabs } from './list-tabs'
+import { PriorityDot } from './priority-dot'
+import { DueBadge } from './due-badge'
+import { HideCompletedToggle } from './hide-completed-toggle'
 import {
   updateTaskTitle,
   setTaskPriority,
@@ -28,7 +33,7 @@ import {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ list?: string | string[] }>
+  searchParams: Promise<{ list?: string | string[]; done?: string | string[] }>
 }) {
   const supabase = await createClient()
   const {
@@ -41,16 +46,19 @@ export default async function Home({
     .order('created_at', { ascending: true })
   const lists = (listsData ?? []) as List[]
 
-  const { list: rawParam } = await searchParams
+  const { list: rawParam, [HIDE_DONE_PARAM]: rawDone } = await searchParams
   const listParam = Array.isArray(rawParam) ? rawParam[0] : rawParam
   const activeListId = resolveActiveListId(lists, listParam)
+  const hideCompleted = parseHideDone(rawDone)
 
   const { data } = await supabase
     .from('tasks')
     .select('id,title,priority,due_date,status,list_id,created_at')
   const allTasks = (data ?? []) as Task[]
   const tasks = filterTasksByList(allTasks, activeListId)
-  const { open, closed } = partitionByStatus(sortTasks(tasks))
+  const { open, closed, openCount, closedCount } = buildTaskView(tasks, { hideCompleted })
+
+  const today = todayISO()
 
   return (
     <main style={{ maxWidth: 600, margin: '6vh auto', padding: 24 }}>
@@ -70,13 +78,21 @@ export default async function Home({
 
       <TaskQuickAdd key={activeListId ?? ALL_LISTS} activeListId={activeListId} />
 
+      {closedCount > 0 ? (
+        <HideCompletedToggle hideCompleted={hideCompleted} activeListId={activeListId} />
+      ) : null}
+
       <section aria-label="Tarefas abertas">
-        <h2>Abertas ({open.length})</h2>
-        <ul>
-          {open.map((task) => (
-            <TaskRow key={task.id} task={task} />
-          ))}
-        </ul>
+        <h2>Abertas ({openCount})</h2>
+        {openCount === 0 && closedCount === 0 ? (
+          <p role="note">Nenhuma tarefa aqui ainda. Adicione a primeira acima.</p>
+        ) : (
+          <ul>
+            {open.map((task) => (
+              <TaskRow key={task.id} task={task} today={today} />
+            ))}
+          </ul>
+        )}
       </section>
 
       {closed.length > 0 ? (
@@ -84,7 +100,7 @@ export default async function Home({
           <h2>Concluídas</h2>
           <ul>
             {closed.map((task) => (
-              <TaskRow key={task.id} task={task} />
+              <TaskRow key={task.id} task={task} today={today} />
             ))}
           </ul>
         </section>
@@ -93,18 +109,16 @@ export default async function Home({
   )
 }
 
-function TaskRow({ task }: { task: Task }) {
+function TaskRow({ task, today }: { task: Task; today: string }) {
   const done = task.status === 'done' || task.status === 'canceled'
 
   return (
     <li style={{ marginBottom: 12 }}>
-      <span aria-label={`Prioridade: ${PRIORITY_LABELS[task.priority]}`} title={PRIORITY_LABELS[task.priority]}>
-        ●
-      </span>{' '}
+      <PriorityDot priority={task.priority} />{' '}
       <span style={{ textDecoration: done ? 'line-through' : 'none', opacity: done ? 0.6 : 1 }}>
         {task.title}
       </span>{' '}
-      {task.due_date ? <small>({task.due_date})</small> : null}
+      <DueBadge dueDate={task.due_date} today={today} />
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
         <form action={updateTaskTitle}>

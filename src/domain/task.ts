@@ -48,6 +48,35 @@ export function normalizeDueDate(raw: string): string | null {
   return trimmed
 }
 
+export type DueClass = 'overdue' | 'today' | 'future'
+
+/** Rótulos pt-BR das classes de vencimento (RNF-4). */
+export const DUE_CLASS_LABELS: Record<DueClass, string> = {
+  overdue: 'Atrasada',
+  today: 'Hoje',
+  future: 'Futura',
+}
+
+/**
+ * RF-5.1: classifica um prazo relativo a `today` (ambos AAAA-MM-DD).
+ * `today` é injetado (função pura, sem relógio interno). Sem prazo → null.
+ * A comparação lexicográfica de datas ISO coincide com a ordem cronológica.
+ */
+export function classifyDueDate(dueDate: string | null, today: string): DueClass | null {
+  if (dueDate === null) return null
+  if (dueDate < today) return 'overdue'
+  if (dueDate === today) return 'today'
+  return 'future'
+}
+
+/**
+ * Data local de hoje (AAAA-MM-DD) no fuso do app (RF-5). Injeta `now` p/ teste.
+ * Usa `Intl` (en-CA já produz AAAA-MM-DD) para evitar o off-by-one do UTC.
+ */
+export function todayISO(timeZone = 'America/Sao_Paulo', now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(now)
+}
+
 export interface SortableTask {
   priority: Priority
   due_date: string | null
@@ -90,4 +119,43 @@ export function partitionByStatus<T extends { status: Status }>(
     else closed.push(task)
   }
   return { open, closed }
+}
+
+export interface TaskView<T> {
+  open: T[]
+  /** Concluídas/canceladas; vazio quando `hideCompleted` (RF-4.4). */
+  closed: T[]
+  /** Contagem de abertas para o cabeçalho (RF-4.5). */
+  openCount: number
+  /** Total de concluídas/canceladas, independente de `hideCompleted`. */
+  closedCount: number
+}
+
+/**
+ * Monta a visão da lista: ordena (RF-4.1), agrupa por status (RF-4.3), conta
+ * abertas (RF-4.5) e aplica o toggle "ocultar concluídas" (RF-4.4). Função pura.
+ */
+export function buildTaskView<T extends SortableTask & { status: Status }>(
+  tasks: readonly T[],
+  opts: { hideCompleted: boolean },
+): TaskView<T> {
+  const { open, closed } = partitionByStatus(sortTasks(tasks))
+  return {
+    open,
+    closed: opts.hideCompleted ? [] : closed,
+    openCount: open.length,
+    closedCount: closed.length,
+  }
+}
+
+/** Query param do toggle "ocultar concluídas" (RF-4.4). */
+export const HIDE_DONE_PARAM = 'done'
+
+/** Valor do query param que oculta as concluídas (`?done=hidden`). */
+export const HIDE_DONE_VALUE = 'hidden'
+
+/** Interpreta o valor do query param `?done=`. Só `"hidden"` oculta; padrão mostra. */
+export function parseHideDone(value: string | string[] | undefined): boolean {
+  const first = Array.isArray(value) ? value[0] : value
+  return first === HIDE_DONE_VALUE
 }
