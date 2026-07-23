@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { AccountMenu } from './account-menu'
 
 describe('AccountMenu (RF-6)', () => {
@@ -16,5 +16,12 @@ describe('AccountMenu (RF-6)', () => {
     )
     expect(screen.getByRole('button', { name: 'Usar tema claro' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sair' })).toBeInTheDocument()
+  })
+
+  it('submeter o formulário Sair invoca a action injetada', async () => {
+    const signOut = vi.fn(async () => {})
+    render(<AccountMenu email="dono@example.com" theme="dark" signOutAction={signOut} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }))
+    await waitFor(() => expect(signOut).toHaveBeenCalledOnce())
   })
 })
