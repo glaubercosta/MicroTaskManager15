@@ -1,13 +1,25 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --background: #111113;
+  --surface: #1b1b1f;
+  --border: #2e2e35;
+  --foreground: #ededf0;
+  --muted: #a2a2ad;
+  --accent: #a78bfa;
+  --due-overdue: #f28b82;
+  --due-today: #e2b04a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root[data-theme='light'] {
+  color-scheme: light;
+  --background: #ffffff;
+  --surface: #f6f6f8;
+  --border: #dcdce2;
+  --foreground: #1c1c21;
+  --muted: #5c5c66;
+  --accent: #6d28d9;
+  --due-overdue: #b3261e;
+  --due-today: #8a5a00;
 }
 
 html {
@@ -26,7 +38,7 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,8 +54,88 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+a:hover,
+a:focus-visible {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Barra de topo full-width; coluna única centralizada abaixo (RF-6/design §4). */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.brand {
+  font-weight: 600;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Menu da conta: <details> nativo, sem JS. */
+.account-menu {
+  position: relative;
+}
+
+.account-menu > summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+}
+
+.account-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.account-menu > div {
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 180px;
+  z-index: 10;
+}
+
+/* Pontinho de prioridade monocromático: peso por opacidade, não por cor (RF-4.2). */
+.priority-dot {
+  color: var(--foreground);
+}
+
+.priority-dot[data-priority='medium'] {
+  opacity: 0.55;
+}
+
+.priority-dot[data-priority='low'] {
+  opacity: 0.3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

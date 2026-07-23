@@ -10,7 +10,11 @@ export function DueBadge({ dueDate, today }: { dueDate: string | null; today: st
   if (cls === null) return null
 
   const color =
-    cls === 'overdue' ? '#e06c75' : cls === 'today' ? '#d19a66' : '#8a8a8a'
+    cls === 'overdue'
+      ? 'var(--due-overdue)'
+      : cls === 'today'
+        ? 'var(--due-today)'
+        : 'var(--muted)'
   const prefix = cls === 'future' ? '' : `${DUE_CLASS_LABELS[cls]} · `
 
   return (

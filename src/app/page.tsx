@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from './login/actions'
 import {
@@ -17,6 +18,8 @@ import {
   ALL_LISTS,
   type List,
 } from '@/domain/list'
+import { parseTheme, THEME_COOKIE } from '@/domain/theme'
+import { AccountMenu } from './account-menu'
 import { TaskQuickAdd } from './task-quick-add'
 import { ListTabs } from './list-tabs'
 import { PriorityDot } from './priority-dot'
@@ -40,6 +43,8 @@ export default async function Home({
     data: { user },
   } = await supabase.auth.getUser()
 
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value)
+
   const { data: listsData } = await supabase
     .from('lists')
     .select('id,name,created_at')
@@ -61,51 +66,55 @@ export default async function Home({
   const today = todayISO()
 
   return (
-    <main style={{ maxWidth: 600, margin: '6vh auto', padding: 24 }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>MicroTaskManager</h1>
-        <form action={signOut}>
-          <button type="submit">Sair</button>
-        </form>
+    <>
+      <header className="topbar">
+        <span className="brand">MicroTaskManager</span>
+        <AccountMenu
+          email={user?.email ?? 'desconhecido'}
+          theme={theme}
+          signOutAction={signOut}
+        />
       </header>
-      <p>Sessão de {user?.email ?? 'desconhecido'}.</p>
+      <main className="container">
+        <h1>Tarefas</h1>
 
-      <ListTabs lists={lists} activeListId={activeListId} />
+        <ListTabs lists={lists} activeListId={activeListId} />
 
-      {lists.length === 0 ? (
-        <p role="note">Você ainda não tem listas. Crie a primeira acima para organizar suas tarefas.</p>
-      ) : null}
+        {lists.length === 0 ? (
+          <p role="note">Você ainda não tem listas. Crie a primeira acima para organizar suas tarefas.</p>
+        ) : null}
 
-      <TaskQuickAdd key={activeListId ?? ALL_LISTS} activeListId={activeListId} />
+        <TaskQuickAdd key={activeListId ?? ALL_LISTS} activeListId={activeListId} />
 
-      {closedCount > 0 ? (
-        <HideCompletedToggle hideCompleted={hideCompleted} activeListId={activeListId} />
-      ) : null}
+        {closedCount > 0 ? (
+          <HideCompletedToggle hideCompleted={hideCompleted} activeListId={activeListId} />
+        ) : null}
 
-      <section aria-label="Tarefas abertas">
-        <h2>Abertas ({openCount})</h2>
-        {openCount === 0 && closedCount === 0 ? (
-          <p role="note">Nenhuma tarefa aqui ainda. Adicione a primeira acima.</p>
-        ) : (
-          <ul>
-            {open.map((task) => (
-              <TaskRow key={task.id} task={task} today={today} />
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {closed.length > 0 ? (
-        <section aria-label="Concluídas">
-          <h2>Concluídas</h2>
-          <ul>
-            {closed.map((task) => (
-              <TaskRow key={task.id} task={task} today={today} />
-            ))}
-          </ul>
+        <section aria-label="Tarefas abertas">
+          <h2>Abertas ({openCount})</h2>
+          {openCount === 0 && closedCount === 0 ? (
+            <p role="note">Nenhuma tarefa aqui ainda. Adicione a primeira acima.</p>
+          ) : (
+            <ul>
+              {open.map((task) => (
+                <TaskRow key={task.id} task={task} today={today} />
+              ))}
+            </ul>
+          )}
         </section>
-      ) : null}
-    </main>
+
+        {closed.length > 0 ? (
+          <section aria-label="Concluídas">
+            <h2>Concluídas</h2>
+            <ul>
+              {closed.map((task) => (
+                <TaskRow key={task.id} task={task} today={today} />
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </main>
+    </>
   )
 }
 

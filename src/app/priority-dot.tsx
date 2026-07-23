@@ -4,7 +4,12 @@ import { PRIORITY_LABELS, type Priority } from '@/domain/task'
 export function PriorityDot({ priority }: { priority: Priority }) {
   const label = PRIORITY_LABELS[priority]
   return (
-    <span aria-label={`Prioridade: ${label}`} title={label}>
+    <span
+      className="priority-dot"
+      data-priority={priority}
+      aria-label={`Prioridade: ${label}`}
+      title={label}
+    >
       ●
     </span>
   )

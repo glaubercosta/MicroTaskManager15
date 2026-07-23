@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [state, formAction, pending] = useActionState(signIn, null)
 
   return (
-    <main style={{ maxWidth: 360, margin: '10vh auto', padding: 24 }}>
+    <main className="container" style={{ maxWidth: 360, marginTop: '10vh' }}>
       <h1>Entrar</h1>
       <form action={formAction}>
         <label>
