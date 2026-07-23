@@ -31,7 +31,8 @@ test.describe('Auth (GC-b)', () => {
     await expect(page).toHaveURL(/localhost:\d+\/$/)
     await expect(page.getByText(EMAIL)).toBeVisible()
 
-    // Logout volta para /login.
+    // Logout — o botão Sair fica dentro do menu da conta (GC-17)
+    await page.getByText(EMAIL).click()
     await page.getByRole('button', { name: 'Sair' }).click()
     await expect(page).toHaveURL(/\/login$/)
   })
