@@ -30,13 +30,18 @@ test.describe('Listas (GC-15)', () => {
     await page.getByLabel('Título da tarefa').fill(taskInList)
     await page.getByRole('button', { name: 'Adicionar' }).click()
     await expect(page.getByText(taskInList)).toBeVisible()
+    // Espera a action de criação assentar (botão sai de "Adicionando…"): clicar num Link
+    // durante o commit da action deixava o router mudo e o POST do apagar nunca disparava.
+    await expect(page.getByRole('button', { name: 'Adicionar' })).toBeEnabled()
 
     // Aba "Todas" também mostra a tarefa (tem lista, mas "Todas" mostra tudo)
     await page.getByRole('link', { name: 'Todas' }).click()
+    await expect(page).toHaveURL(/localhost:\d+\/$/)
     await expect(page.getByText(taskInList)).toBeVisible()
 
     // Voltar à lista e apagar a tarefa (limpeza; a lista permanece — ver nota)
     await listTab.click()
+    await expect(page).toHaveURL(/\?list=/)
     await page.getByRole('button', { name: `Apagar ${taskInList}` }).click()
     await expect(page.getByText(taskInList)).toHaveCount(0)
   })
