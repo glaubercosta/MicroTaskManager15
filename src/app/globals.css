@@ -8,6 +8,9 @@
   --accent: #a78bfa;
   --due-overdue: #f28b82;
   --due-today: #e2b04a;
+  --dot-high: #ededf0;
+  --dot-medium: #a2a2ad;
+  --dot-low: #6b6b76;
 }
 
 :root[data-theme='light'] {
@@ -20,6 +23,9 @@
   --accent: #6d28d9;
   --due-overdue: #b3261e;
   --due-today: #8a5a00;
+  --dot-high: #1c1c21;
+  --dot-medium: #5c5c66;
+  --dot-low: #85859a;
 }
 
 html {
@@ -116,17 +122,17 @@ a:focus-visible {
   z-index: 10;
 }
 
-/* Pontinho de prioridade monocromático: peso por opacidade, não por cor (RF-4.2). */
-.priority-dot {
-  color: var(--foreground);
+/* Pontinho de prioridade: cor sólida por token, ≥3:1 contra o fundo (GC-19 / WCAG 1.4.11). */
+.priority-dot[data-priority='high'] {
+  color: var(--dot-high);
 }
 
 .priority-dot[data-priority='medium'] {
-  opacity: 0.55;
+  color: var(--dot-medium);
 }
 
 .priority-dot[data-priority='low'] {
-  opacity: 0.3;
+  color: var(--dot-low);
 }
 
 @media (prefers-reduced-motion: reduce) {
