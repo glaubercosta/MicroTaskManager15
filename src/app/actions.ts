@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { validateTitle, isPriority, isStatus, normalizeDueDate } from '@/domain/task'
 import { validateListName, normalizeListId } from '@/domain/list'
+import { userOwnsList } from '@/lib/supabase/list-ownership'
 
 async function requireUserClient() {
   const supabase = await createClient()
@@ -37,6 +38,13 @@ export async function createTask(_prev: unknown, formData: FormData) {
   const list_id = normalizeListId(String(formData.get('list_id') ?? ''))
 
   const { supabase, user } = await requireUserClient()
+
+  // GC-21: a FK só valida existência e a RLS de tasks só o user_id da task —
+  // a posse da lista é conferida aqui, sob a RLS do usuário.
+  if (list_id !== null && !(await userOwnsList(supabase, list_id))) {
+    return { error: 'Lista inválida.' }
+  }
+
   const { error } = await supabase
     .from('tasks')
     .insert({ user_id: user.id, title, priority, due_date, status: 'new', list_id })
