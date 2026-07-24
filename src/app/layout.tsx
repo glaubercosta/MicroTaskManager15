@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
-import { parseTheme, THEME_COOKIE, THEME_COOKIE_MAX_AGE } from "@/domain/theme";
+import { parseTheme, THEME_COOKIE } from "@/domain/theme";
+import { themeFallbackScript } from "./theme-script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,12 +19,6 @@ export const metadata: Metadata = {
   title: "MicroTaskManager",
   description: "Gerenciador minimalista de tarefas pessoais",
 };
-
-/**
- * Fallback localStorage (RF-6): roda antes do paint quando NÃO há cookie.
- * Aplica o tema salvo e regrava o cookie para o próximo SSR resolver no servidor.
- */
-const themeFallbackScript = `(function(){try{if(document.cookie.indexOf('${THEME_COOKIE}=')===-1){var t=localStorage.getItem('${THEME_COOKIE}');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;document.cookie='${THEME_COOKIE}='+t+'; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax'}}}catch(e){}})()`;
 
 export default async function RootLayout({
   children,

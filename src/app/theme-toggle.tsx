@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import {
   parseTheme,
+  themeCookie,
   toggleTheme,
   THEME_COOKIE,
-  THEME_COOKIE_MAX_AGE,
   type Theme,
 } from '@/domain/theme'
 
@@ -27,7 +27,7 @@ export function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
   function handleClick() {
     const next = toggleTheme(theme)
     document.documentElement.dataset.theme = next
-    document.cookie = `${THEME_COOKIE}=${next}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`
+    document.cookie = themeCookie(next, location.protocol === 'https:')
     try {
       localStorage.setItem(THEME_COOKIE, next)
     } catch {
