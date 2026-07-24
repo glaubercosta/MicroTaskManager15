@@ -21,3 +21,14 @@ export function parseTheme(value: string | null | undefined): Theme {
 export function toggleTheme(theme: Theme): Theme {
   return theme === 'dark' ? 'light' : 'dark'
 }
+
+/** Detecção exata do cookie de tema num document.cookie: 'x-theme=' não casa (GC-20). */
+export function hasThemeCookie(cookieString: string): boolean {
+  return cookieString.split('; ').some((c) => c.startsWith(`${THEME_COOKIE}=`))
+}
+
+/** Serializa o cookie de tema; `Secure` só sob HTTPS — dev local via HTTP segue gravando (GC-20). */
+export function themeCookie(theme: Theme, isHttps: boolean): string {
+  const base = `${THEME_COOKIE}=${theme}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`
+  return isHttps ? `${base}; secure` : base
+}
